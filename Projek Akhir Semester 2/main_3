@@ -1,0 +1,874 @@
+from tkinter import *
+import tkinter as tk
+from tkinter import ttk
+from tkinter import messagebox
+from tkinter.ttk import Combobox
+from PIL import Image, ImageTk
+from datetime import datetime
+from plyer import notification
+import pygame.mixer
+import time
+import csv
+
+
+class TableFrame(tk.Frame):
+    def __init__(self, parent):
+        super().__init__(parent)
+
+        
+class Homepage(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        self.image = Image.open("bg homepage.png")
+        self.image = ImageTk.PhotoImage(self.image)
+
+        self.label = tk.Label(self, image=self.image)
+        self.label.place(x=0, y=0)
+        
+
+        self.image_read = Image.open("tampilkan task.png")
+        self.image_read = ImageTk.PhotoImage(self.image_read)
+        self.button_read = tk.Button(self, bd=0, highlightthickness=0, activebackground="#c5ac8e")
+        self.button_read.config(image=self.image_read, width=390, height=120, bg="#c5ac8e", command=lambda: controller.show_frame(Read))
+        self.button_read.place(x=120, y=200)
+        # button_tampilan_task_img = tk.PhotoImage(file="tampilkan task.png")
+        # button_tampilan_task = tk.Button(self, bd=0, highlightthickness=0, activebackground="#c5ac8e")
+        # button_tampilan_task.config(image=button_tampilan_task_img, width=390, height=120, bg="#c5ac8e", command=lambda: controller.show_frame(Read))
+        # button_tampilan_task.place(x=120, y=200)
+
+        self.image_delete = Image.open("hapus task.png")
+        self.image_delete = ImageTk.PhotoImage(self.image_delete)
+        self.button_delete = tk.Button(self, bd=0, highlightthickness=0, activebackground="#c5ac8e")
+        self.button_delete.config(image=self.image_delete, width=390, height=120, bg="#c5ac8e", command=lambda: controller.show_frame(Delete))
+        self.button_delete.place(x=120, y=400)
+        # button_hapus_task_img = tk.PhotoImage(file="hapus task.png")
+        # button_hapus_task = tk.Button(self, bd=0, highlightthickness=0, activebackground="#c5ac8e")
+        # button_hapus_task.config(image=button_hapus_task_img, width=390, height=120, bg="#c5ac8e", command=lambda: controller.show_frame(Delete))
+        # button_hapus_task.place(x=120, y=400)
+
+        self.image_create = Image.open("tambah task.png")
+        self.image_create = ImageTk.PhotoImage(self.image_create)
+        self.button_create = tk.Button(self, bd=0, highlightthickness=0, activebackground="#EAE0D5")
+        self.button_create.config(image=self.image_create, width=390, height=120, bg="#EAE0D5", command=lambda: controller.show_frame(Create))
+        self.button_create.place(x=800, y=200)
+        # button_tambah_task_img = tk.PhotoImage(file="tambah task.png")
+        # button_tambah_task = tk.Button(self, bd=0, highlightthickness=-1, activebackground="#EAE0D5")
+        # button_tambah_task.config(image=button_tambah_task_img, width=390, height=120, bg="#EAE0D5", command=lambda: controller.show_frame(Create))
+        # button_tambah_task.place(x=800, y=200) 
+
+        self.image_edit = Image.open("edit task.png")
+        self.image_edit = ImageTk.PhotoImage(self.image_edit)
+        self.button_edit = tk.Button(self, bd=0, highlightthickness=0, activebackground="#EAE0D5")
+        self.button_edit.config(image=self.image_edit, width=390, height=120, bg="#EAE0D5", command=lambda: controller.show_frame(Update))
+        self.button_edit.place(x=800, y=400)
+        # button_edit_task_img = tk.PhotoImage(file="edit task.png")
+        # button_edit_task = tk.Button(self, bd=0, highlightthickness=-1, activebackground="#EAE0D5")
+        # button_edit_task.config(image=button_edit_task_img, width=390, height=120, bg="#EAE0D5", command=lambda: controller.show_frame(Update))
+        # button_edit_task.place(x=800, y=400)
+
+class Create(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        # Label = tk.Label(self, text="SecondPage", font=("Arial Bold", 30))
+        # Label.place(x=230, y=230)
+        # Button = tk.Button(self, text="Next", font=("Arial", 15), command=lambda: controller.show_frame(Thirdpage))
+        # Button.place(x=650, y=450)
+        self.image = Image.open("bg tambah task.png")
+        self.image = ImageTk.PhotoImage(self.image)
+        self.label = tk.Label(self, image=self.image)
+        self.label.place(x=0, y=0)
+
+        def tambahkan():
+            nama_task = namaEntry.get()
+            kategori = kategori_combobox.get()
+            tanggal_dibuat = TglEntry.get()
+            deadline = deadlineEntry.get()
+            lokasi = Lokasi.get()
+
+            if not nama_task or not kategori or not tanggal_dibuat or not deadline or not lokasi:
+                messagebox.showerror("Error", "Harap lengkapi semua field")
+            else:
+                task = {
+                    'nama_task': nama_task,
+                    'kategori': kategori,
+                    'tanggal_dibuat': tanggal_dibuat,
+                    'deadline': deadline,
+                    'lokasi': lokasi
+                }
+                with open('tasks.csv', 'a', newline='') as file:
+                    fieldnames = ['nama_task', 'kategori', 'tanggal_dibuat', 'deadline', 'lokasi']
+                    writer = csv.DictWriter(file, fieldnames=fieldnames)
+                    if file.tell() == 0:
+                        writer.writeheader()
+                    writer.writerow(task)
+                messagebox.showinfo("Sukses", "Task berhasil ditambahkan")
+
+                namaEntry.delete(0, tk.END)
+                kategori_combobox.set("")
+                TglEntry.delete(0, tk.END)
+                TglEntry.insert(0, datetime.now().strftime("%Y-%m-%d"))
+                deadlineEntry.delete(0, tk.END)
+                deadlineEntry.insert(0, datetime.now().strftime("%Y-%m-%d"))
+                Lokasi.delete(0, tk.END)
+
+        def reset():
+            namaEntry.delete(0, tk.END)
+            kategori_combobox.set("")
+            TglEntry.delete(0, tk.END)
+            TglEntry.insert(0, datetime.now().strftime("%Y-%m-%d"))
+            deadlineEntry.delete(0, tk.END)
+            deadlineEntry.insert(0, datetime.now().strftime("%Y-%m-%d"))
+            Lokasi.delete(0, tk.END)
+
+        namaEntry = tk.Entry(self, width=45, bd=1, font=20)
+        namaEntry.place(x=400, y=167)
+        kategori_combobox = ttk.Combobox(self, values=["Tugas Kuliah", "Event Ormawa", "Lomba", "Lainnya"], font="arial 11", state="r", width=14)
+        kategori_combobox.place(x=400, y=247)
+        kategori_combobox.current(0)
+        TglEntry = tk.Entry(self, width=15, bd=1, font="arial 10")
+        TglEntry.place(x=400, y=324)
+        TglEntry.insert(0, datetime.now().strftime("%Y-%m-%d"))
+        deadlineEntry = tk.Entry(self, width=15, bd=1, font="arial 10")
+        deadlineEntry.place(x=400, y=404)
+        deadlineEntry.insert(0, datetime.now().strftime("%Y-%m-%d"))
+        Lokasi = tk.Entry(self, bd=1, font="arial 10")
+        Lokasi.place(x=400, y=480)
+        button_tambah = tk.Button(self, text="Tambahkan", bg="#9C6666", fg="white", width=15, height=2, command=tambahkan)
+        button_tambah.place(x=940, y=600)
+        button_resset = tk.Button(self, text="Reset", bg="#9C6666", fg="white", width=15, height=2, command=reset)
+        button_resset.place(x=800, y=600)
+
+
+class Read(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        # Label = tk.Label(self, text="ThirdPage", font=("Arial Bold", 30))
+        # Label.place(x=230, y=230)
+        # Button = tk.Button(self, text="Home", font=("Arial", 15), command=lambda: controller.show_frame(Homepage))
+        # Button.place(x=650, y=450)
+        self.image = Image.open("bg tampilkan task.png")
+        self.image = ImageTk.PhotoImage(self.image)
+
+        self.label = tk.Label(self, image=self.image)
+        self.label.place(x=0, y=0)
+
+        def play_ringtone():
+            ringtone.play()
+
+        def show_notification(title, message):
+            notification.notify(
+                title=title,
+                message=message,
+                app_icon="C:\\Users\\ASUS\\Downloads\\takmir\\logo_takmir.ico",
+                timeout=3600,
+            )
+            time.sleep(2)
+            play_ringtone()
+
+
+
+        def check_deadline(deadline):
+            deadline_date = datetime.strptime(deadline, '%Y-%m-%d').date()
+            current_date = datetime.now().date()
+    
+            if current_date == deadline_date:
+                return True
+            else:
+                return False
+
+        table_frame = tk.Frame(self, width=1000, height=600, bg="black")
+        table_frame.place(x=180, y=150)
+        listbox_data = tk.Listbox(table_frame, width=100)
+        listbox_data.pack(fill=tk.BOTH, expand=True)
+
+        tree_scroll = Scrollbar(listbox_data)
+        tree_scroll.pack(side=RIGHT, fill=Y)
+
+        style = ttk.Style()
+        style.configure("Treeview", font=("Arial", 15))
+        style.configure("Treeview", rowheight=30)
+        style.configure("Treeview.Heading", font=("Arial", 16))
+
+        tree = ttk.Treeview(listbox_data, columns=("nama_task", "kategori", "tanggal_dibuat", "deadline", "lokasi"), show="headings")
+        tree.heading("nama_task", text="Nama Task", command=lambda: sort_data(tree, "nama_task"))
+        tree.heading("kategori", text="Kategori", command=lambda: sort_data(tree, "kategori"))
+        tree.heading("tanggal_dibuat", text="Tanggal Dibuat", command=lambda: sort_data(tree, "tanggal_dibuat"))
+        tree.heading("deadline", text="Deadline", command=lambda: sort_data(tree, "deadline"))
+        tree.heading("lokasi", text="Lokasi", command=lambda: sort_data(tree, "lokasi"))
+
+        tree.column("nama_task", width=210)
+        tree.column("kategori", width=160)
+        tree.column("tanggal_dibuat", width=180)
+        tree.column("deadline", width=180)
+        tree.column("lokasi", width=180)
+
+        tree.configure(yscrollcommand=tree_scroll.set)
+        tree_scroll.configure(command=tree.yview)
+
+        with open('tasks.csv', 'r') as file:
+            reader = csv.DictReader(file)
+            data = list(reader)
+
+            for row in data:
+                tree.insert("", END, values=(row['nama_task'], row['kategori'], row['tanggal_dibuat'], row['deadline'], row['lokasi']))
+                # if check_deadline(row['deadline']):
+                #     show_notification("Deadline Task", f"Task {row['nama_task']} sudah mencapai deadline")
+
+        tree.pack(fill=BOTH, expand=True)
+
+        search_frame = tk.Frame(self, width=500, height=500)
+        search_frame.place(x=800, y=10)
+
+        search_label = tk.Label(search_frame, text="Search:")
+        search_label.pack(side=LEFT)
+
+        search_entry = tk.Entry(search_frame, font=("Arial", 14), width=20)
+        search_entry.pack(side=LEFT, padx=5, pady=5)
+
+
+        search_button = tk.Button(search_frame, text="Cari", command=lambda: search_data(tree, search_entry.get()))
+        search_button.pack(side=LEFT)
+
+        sort_frame = tk.Frame(self)
+        sort_frame.place(x=800, y=50)
+
+        sort_label = tk.Label(sort_frame, text="Sort by:")
+        sort_label.pack(side=LEFT)
+
+        sort_combobox = ttk.Combobox(sort_frame, values=["Deadline Terdekat", "Deadline Terlama", "A-Z Nama Task", "Z-A Nama Task"], state="readonly", font=("Arial", 10))
+        sort_combobox.pack(side=LEFT)
+        sort_combobox.current(0)
+
+        sort_button = tk.Button(sort_frame, text="Sort", command=lambda: sort_data_callback(sort_combobox, tree))
+        sort_button.pack(side=LEFT)
+
+
+
+
+
+
+        def binary_search(data, keyword):
+            low = 0
+            high = len(data) - 1
+
+            while low <= high:
+                mid = (low + high) // 2
+                if data[mid]['nama_task'].lower() == keyword.lower():
+                    return mid
+                elif data[mid]['nama_task'].lower() < keyword.lower():
+                    low = mid + 1
+                else:
+                    high = mid - 1
+
+            return -1
+
+
+        def search_data(tree, keyword):
+            tree.delete(*tree.get_children())
+
+            if keyword:
+                sorted_data = sorted(data, key=lambda x: x['nama_task'].lower())  # Sorting data berdasarkan nama_task
+                index = binary_search(sorted_data, keyword)
+                if index != -1:
+                    item = sorted_data[index]
+                    tree.insert("", END, values=(item['nama_task'], item['kategori'], item['tanggal_dibuat'], item['deadline'], item['lokasi']))
+            else:
+                for item in data:
+                    tree.insert("", END, values=(item['nama_task'], item['kategori'], item['tanggal_dibuat'], item['deadline'], item['lokasi']))
+
+
+
+
+        def merge_sort(data, column, descending=False):
+            if len(data) <= 1:
+                return data
+
+            mid = len(data) // 2
+            left_half = data[:mid]
+            right_half = data[mid:]
+
+            left_half = merge_sort(left_half, column, descending)
+            right_half = merge_sort(right_half, column, descending)
+
+            return merge(left_half, right_half, column, descending)
+
+
+        def merge(left, right, column, descending=False):
+            result = []
+            i = j = 0
+
+            while i < len(left) and j < len(right):
+                if (left[i][0].lower() < right[j][0].lower() and not descending) or (left[i][0].lower() > right[j][0].lower() and descending):
+                    result.append(left[i])
+                    i += 1
+                else:
+                    result.append(right[j])
+                    j += 1
+
+            while i < len(left):
+                result.append(left[i])
+                i += 1
+
+            while j < len(right):
+                result.append(right[j])
+                j += 1
+
+            return result
+
+
+
+        def tree_sort_by_column(tree, column, descending=False):
+            data = [(tree.set(child, column), child) for child in tree.get_children("")]
+            sorted_data = merge_sort(data, column, descending)
+
+            for index, (value, child) in enumerate(sorted_data):
+                tree.move(child, "", index)
+
+
+
+        def sort_data_callback(column_var, tree):
+            column = column_var.get()
+            if column == "Deadline Terdekat":
+                tree_sort_by_column(tree, "deadline", descending=False)
+            elif column == "Deadline Terlama":
+                tree_sort_by_column(tree, "deadline", descending=True)
+            elif column == "A-Z Nama Task":
+                tree_sort_by_column(tree, "nama_task", descending=False)
+            elif column == "Z-A Nama Task":
+                tree_sort_by_column(tree, "nama_task", descending=True)
+
+
+        def create_task():
+            pass
+
+        def back_to_menu():
+            pass
+
+        # self.image_read = Image.open("tampilkan task.png")
+        # self.image_read = ImageTk.PhotoImage(self.image_read)
+        # self.button_read = tk.Button(self, bd=0, highlightthickness=0, activebackground="#c5ac8e")
+        # self.button_read.config(image=self.image_read, width=390, height=120, bg="#c5ac8e", command=lambda: controller.show_frame(Read))
+        # self.button_read.place(x=120, y=200)
+
+        self.button_create_task = Image.open("create_pada_tampilkan_task.png")
+        self.button_create_task = ImageTk.PhotoImage(self.button_create_task)
+        self.button = tk.Button(self, bd=0, highlightthickness=0, activebackground="#EAE0D5")
+        self.button.config(image=self.button_create_task, width=360, height=120, bg="#EAE0D5", command=lambda: controller.show_frame(Create))
+        self.button.place(x=990, y=500)
+
+        self.button_back = Image.open("back_to_menu.png")
+        self.back_button = ImageTk.PhotoImage(self.button_back)
+        self.button = tk.Button(self, bd=0, highlightthickness=-1, activebackground="#EAE0D5")
+        self.button.config(image=self.back_button, width=270, height=35, bg="#EAE0D5", command=lambda: controller.show_frame(Homepage))
+        self.button.place(x=10,y=105)
+
+class Update(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        # Label = tk.Label(self, text="ThirdPage", font=("Arial Bold", 30))
+        # Label.place(x=230, y=230)
+        # Button = tk.Button(self, text="Home", font=("Arial", 15), command=lambda: controller.show_frame(Homepage))
+        # Button.place(x=650, y=450)
+
+        self.image = Image.open("bg tampilkan task.png")
+        self.image = ImageTk.PhotoImage(self.image)
+
+        self.label = tk.Label(self, image=self.image)
+        self.label.place(x=0, y=0)
+
+        def play_ringtone():
+            ringtone.play()
+
+        def show_notification(title, message):
+            notification.notify(
+                title=title,
+                message=message,
+                app_icon="C:\\Users\\ASUS\\Downloads\\takmir\\logo_takmir.ico",
+                timeout=3600,
+            )
+            time.sleep(2)
+            play_ringtone()
+
+
+
+        def check_deadline(deadline):
+            deadline_date = datetime.strptime(deadline, '%Y-%m-%d').date()
+            current_date = datetime.now().date()
+    
+            if current_date == deadline_date:
+                return True
+            else:
+                return False
+
+        table_frame = tk.Frame(self, width=1000, height=600, bg="black")
+        table_frame.place(x=180, y=150)
+        listbox_data = tk.Listbox(table_frame, width=100)
+        listbox_data.pack(fill=tk.BOTH, expand=True)
+
+        tree_scroll = Scrollbar(listbox_data)
+        tree_scroll.pack(side=RIGHT, fill=Y)
+
+        style = ttk.Style()
+        style.configure("Treeview", font=("Arial", 15))
+        style.configure("Treeview", rowheight=30)
+        style.configure("Treeview.Heading", font=("Arial", 16))
+
+        tree = ttk.Treeview(listbox_data, columns=("nama_task", "kategori", "tanggal_dibuat", "deadline", "lokasi"), show="headings")
+        tree.heading("nama_task", text="Nama Task", command=lambda: sort_data(tree, "nama_task"))
+        tree.heading("kategori", text="Kategori", command=lambda: sort_data(tree, "kategori"))
+        tree.heading("tanggal_dibuat", text="Tanggal Dibuat", command=lambda: sort_data(tree, "tanggal_dibuat"))
+        tree.heading("deadline", text="Deadline", command=lambda: sort_data(tree, "deadline"))
+        tree.heading("lokasi", text="Lokasi", command=lambda: sort_data(tree, "lokasi"))
+
+        tree.column("nama_task", width=210)
+        tree.column("kategori", width=160)
+        tree.column("tanggal_dibuat", width=180)
+        tree.column("deadline", width=180)
+        tree.column("lokasi", width=180)
+
+        tree.configure(yscrollcommand=tree_scroll.set)
+        tree_scroll.configure(command=tree.yview)
+
+        with open('tasks.csv', 'r') as file:
+            reader = csv.DictReader(file)
+            data = list(reader)
+
+            for row in data:
+                tree.insert("", END, values=(row['nama_task'], row['kategori'], row['tanggal_dibuat'], row['deadline'], row['lokasi']))
+                # if check_deadline(row['deadline']):
+                #     show_notification("Deadline Task", f"Task {row['nama_task']} sudah mencapai deadline")
+
+        tree.pack(fill=BOTH, expand=True)
+
+        search_frame = tk.Frame(self, width=500, height=500)
+        search_frame.place(x=800, y=10)
+
+        search_label = tk.Label(search_frame, text="Search:")
+        search_label.pack(side=LEFT)
+
+        search_entry = tk.Entry(search_frame, font=("Arial", 14), width=20)
+        search_entry.pack(side=LEFT, padx=5, pady=5)
+
+
+        search_button = tk.Button(search_frame, text="Cari", command=lambda: search_data(tree, search_entry.get()))
+        search_button.pack(side=LEFT)
+
+        sort_frame = tk.Frame(self)
+        sort_frame.place(x=800, y=50)
+
+        sort_label = tk.Label(sort_frame, text="Sort by:")
+        sort_label.pack(side=LEFT)
+
+        sort_combobox = ttk.Combobox(sort_frame, values=["Deadline Terdekat", "Deadline Terlama", "A-Z Nama Task", "Z-A Nama Task"], state="readonly", font=("Arial", 10))
+        sort_combobox.pack(side=LEFT)
+        sort_combobox.current(0)
+
+        sort_button = tk.Button(sort_frame, text="Sort", command=lambda: sort_data_callback(sort_combobox, tree))
+        sort_button.pack(side=LEFT)
+
+
+
+
+
+
+        def binary_search(data, keyword):
+            low = 0
+            high = len(data) - 1
+
+            while low <= high:
+                mid = (low + high) // 2
+                if data[mid]['nama_task'].lower() == keyword.lower():
+                    return mid
+                elif data[mid]['nama_task'].lower() < keyword.lower():
+                    low = mid + 1
+                else:
+                    high = mid - 1
+
+            return -1
+
+
+        def search_data(tree, keyword):
+            tree.delete(*tree.get_children())
+
+            if keyword:
+                sorted_data = sorted(data, key=lambda x: x['nama_task'].lower())  # Sorting data berdasarkan nama_task
+                index = binary_search(sorted_data, keyword)
+                if index != -1:
+                    item = sorted_data[index]
+                    tree.insert("", END, values=(item['nama_task'], item['kategori'], item['tanggal_dibuat'], item['deadline'], item['lokasi']))
+            else:
+                for item in data:
+                    tree.insert("", END, values=(item['nama_task'], item['kategori'], item['tanggal_dibuat'], item['deadline'], item['lokasi']))
+
+
+
+
+        def merge_sort(data, column, descending=False):
+            if len(data) <= 1:
+                return data
+
+            mid = len(data) // 2
+            left_half = data[:mid]
+            right_half = data[mid:]
+
+            left_half = merge_sort(left_half, column, descending)
+            right_half = merge_sort(right_half, column, descending)
+
+            return merge(left_half, right_half, column, descending)
+
+
+        def merge(left, right, column, descending=False):
+            result = []
+            i = j = 0
+
+            while i < len(left) and j < len(right):
+                if (left[i][0].lower() < right[j][0].lower() and not descending) or (left[i][0].lower() > right[j][0].lower() and descending):
+                    result.append(left[i])
+                    i += 1
+                else:
+                    result.append(right[j])
+                    j += 1
+
+            while i < len(left):
+                result.append(left[i])
+                i += 1
+
+            while j < len(right):
+                result.append(right[j])
+                j += 1
+
+            return result
+
+
+
+        def tree_sort_by_column(tree, column, descending=False):
+            data = [(tree.set(child, column), child) for child in tree.get_children("")]
+            sorted_data = merge_sort(data, column, descending)
+
+            for index, (value, child) in enumerate(sorted_data):
+                tree.move(child, "", index)
+
+
+
+        def sort_data_callback(column_var, tree):
+            column = column_var.get()
+            if column == "Deadline Terdekat":
+                tree_sort_by_column(tree, "deadline", descending=False)
+            elif column == "Deadline Terlama":
+                tree_sort_by_column(tree, "deadline", descending=True)
+            elif column == "A-Z Nama Task":
+                tree_sort_by_column(tree, "nama_task", descending=False)
+            elif column == "Z-A Nama Task":
+                tree_sort_by_column(tree, "nama_task", descending=True)
+
+        def edit_task():
+            selected_item = tree.selection()
+
+            if selected_item:
+                update_data = UpdateData(self, selected_item)
+                
+
+            else:
+                messagebox.showwarning("Edit Task", "Mohon pilih task yang ingin diedit.")
+
+
+        
+
+        # self.image_read = Image.open("tampilkan task.png")
+        # self.image_read = ImageTk.PhotoImage(self.image_read)
+        # self.button_read = tk.Button(self, bd=0, highlightthickness=0, activebackground="#c5ac8e")
+        # self.button_read.config(image=self.image_read, width=390, height=120, bg="#c5ac8e", command=lambda: controller.show_frame(Read))
+        # self.button_read.place(x=120, y=200)
+
+        self.edit_button = tk.Button(self, text="Edit Task",bg="#9C6666" ,fg="white",width=15, height=2)
+        self.edit_button.place(x=860, y=550)
+
+        self.button_back = Image.open("back_to_menu.png")
+        self.back_button = ImageTk.PhotoImage(self.button_back)
+        self.button = tk.Button(self, bd=0, highlightthickness=-1, activebackground="#EAE0D5")
+        self.button.config(image=self.back_button, width=270, height=35, bg="#EAE0D5", command=lambda: controller.show_frame(Homepage))
+        self.button.place(x=10,y=105)
+
+# class Update1(tk.Toplevel):
+#     def __init__(self, parent, controller):
+        
+
+
+class Delete(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        # Label = tk.Label(self, text="ThirdPage", font=("Arial Bold", 30))
+        # Label.place(x=230, y=230)
+        # Button = tk.Button(self, text="Home", font=("Arial", 15), command=lambda: controller.show_frame(Homepage))
+        # Button.place(x=650, y=450)
+
+        self.image = Image.open("bg tampilkan task.png")
+        self.image = ImageTk.PhotoImage(self.image)
+
+        self.label = tk.Label(self, image=self.image)
+        self.label.place(x=0, y=0)
+
+        def play_ringtone():
+            ringtone.play()
+
+        def show_notification(title, message):
+            notification.notify(
+                title=title,
+                message=message,
+                app_icon="C:\\Users\\ASUS\\Downloads\\takmir\\logo_takmir.ico",
+                timeout=3600,
+            )
+            time.sleep(2)
+            play_ringtone()
+
+
+
+        def check_deadline(deadline):
+            deadline_date = datetime.strptime(deadline, '%Y-%m-%d').date()
+            current_date = datetime.now().date()
+    
+            if current_date == deadline_date:
+                return True
+            else:
+                return False
+
+        table_frame = tk.Frame(self, width=1000, height=600, bg="black")
+        table_frame.place(x=180, y=150)
+        listbox_data = tk.Listbox(table_frame, width=100)
+        listbox_data.pack(fill=tk.BOTH, expand=True)
+
+        tree_scroll = Scrollbar(listbox_data)
+        tree_scroll.pack(side=RIGHT, fill=Y)
+
+        style = ttk.Style()
+        style.configure("Treeview", font=("Arial", 15))
+        style.configure("Treeview", rowheight=30)
+        style.configure("Treeview.Heading", font=("Arial", 16))
+
+        tree = ttk.Treeview(listbox_data, columns=("nama_task", "kategori", "tanggal_dibuat", "deadline", "lokasi"), show="headings")
+        tree.heading("nama_task", text="Nama Task", command=lambda: sort_data(tree, "nama_task"))
+        tree.heading("kategori", text="Kategori", command=lambda: sort_data(tree, "kategori"))
+        tree.heading("tanggal_dibuat", text="Tanggal Dibuat", command=lambda: sort_data(tree, "tanggal_dibuat"))
+        tree.heading("deadline", text="Deadline", command=lambda: sort_data(tree, "deadline"))
+        tree.heading("lokasi", text="Lokasi", command=lambda: sort_data(tree, "lokasi"))
+
+        tree.column("nama_task", width=210)
+        tree.column("kategori", width=160)
+        tree.column("tanggal_dibuat", width=180)
+        tree.column("deadline", width=180)
+        tree.column("lokasi", width=180)
+
+        tree.configure(yscrollcommand=tree_scroll.set)
+        tree_scroll.configure(command=tree.yview)
+
+        with open('tasks.csv', 'r') as file:
+            reader = csv.DictReader(file)
+            data = list(reader)
+
+            for row in data:
+                tree.insert("", END, values=(row['nama_task'], row['kategori'], row['tanggal_dibuat'], row['deadline'], row['lokasi']))
+                # if check_deadline(row['deadline']):
+                #     show_notification("Deadline Task", f"Task {row['nama_task']} sudah mencapai deadline")
+
+        tree.pack(fill=BOTH, expand=True)
+
+        search_frame = tk.Frame(self, width=500, height=500)
+        search_frame.place(x=800, y=10)
+
+        search_label = tk.Label(search_frame, text="Search:")
+        search_label.pack(side=LEFT)
+
+        search_entry = tk.Entry(search_frame, font=("Arial", 14), width=20)
+        search_entry.pack(side=LEFT, padx=5, pady=5)
+
+
+        search_button = tk.Button(search_frame, text="Cari", command=lambda: search_data(tree, search_entry.get()))
+        search_button.pack(side=LEFT)
+
+        sort_frame = tk.Frame(self)
+        sort_frame.place(x=800, y=50)
+
+        sort_label = tk.Label(sort_frame, text="Sort by:")
+        sort_label.pack(side=LEFT)
+
+        sort_combobox = ttk.Combobox(sort_frame, values=["Deadline Terdekat", "Deadline Terlama", "A-Z Nama Task", "Z-A Nama Task"], state="readonly", font=("Arial", 10))
+        sort_combobox.pack(side=LEFT)
+        sort_combobox.current(0)
+
+        sort_button = tk.Button(sort_frame, text="Sort", command=lambda: sort_data_callback(sort_combobox, tree))
+        sort_button.pack(side=LEFT)
+
+
+
+
+
+
+        def binary_search(data, keyword):
+            low = 0
+            high = len(data) - 1
+
+            while low <= high:
+                mid = (low + high) // 2
+                if data[mid]['nama_task'].lower() == keyword.lower():
+                    return mid
+                elif data[mid]['nama_task'].lower() < keyword.lower():
+                    low = mid + 1
+                else:
+                    high = mid - 1
+
+            return -1
+
+
+        def search_data(tree, keyword):
+            tree.delete(*tree.get_children())
+
+            if keyword:
+                sorted_data = sorted(data, key=lambda x: x['nama_task'].lower())  # Sorting data berdasarkan nama_task
+                index = binary_search(sorted_data, keyword)
+                if index != -1:
+                    item = sorted_data[index]
+                    tree.insert("", END, values=(item['nama_task'], item['kategori'], item['tanggal_dibuat'], item['deadline'], item['lokasi']))
+            else:
+                for item in data:
+                    tree.insert("", END, values=(item['nama_task'], item['kategori'], item['tanggal_dibuat'], item['deadline'], item['lokasi']))
+
+
+
+
+        def merge_sort(data, column, descending=False):
+            if len(data) <= 1:
+                return data
+
+            mid = len(data) // 2
+            left_half = data[:mid]
+            right_half = data[mid:]
+
+            left_half = merge_sort(left_half, column, descending)
+            right_half = merge_sort(right_half, column, descending)
+
+            return merge(left_half, right_half, column, descending)
+
+
+        def merge(left, right, column, descending=False):
+            result = []
+            i = j = 0
+
+            while i < len(left) and j < len(right):
+                if (left[i][0].lower() < right[j][0].lower() and not descending) or (left[i][0].lower() > right[j][0].lower() and descending):
+                    result.append(left[i])
+                    i += 1
+                else:
+                    result.append(right[j])
+                    j += 1
+
+            while i < len(left):
+                result.append(left[i])
+                i += 1
+
+            while j < len(right):
+                result.append(right[j])
+                j += 1
+
+            return result
+
+
+
+        def tree_sort_by_column(tree, column, descending=False):
+            data = [(tree.set(child, column), child) for child in tree.get_children("")]
+            sorted_data = merge_sort(data, column, descending)
+
+            for index, (value, child) in enumerate(sorted_data):
+                tree.move(child, "", index)
+
+
+
+        def sort_data_callback(column_var, tree):
+            column = column_var.get()
+            if column == "Deadline Terdekat":
+                tree_sort_by_column(tree, "deadline", descending=False)
+            elif column == "Deadline Terlama":
+                tree_sort_by_column(tree, "deadline", descending=True)
+            elif column == "A-Z Nama Task":
+                tree_sort_by_column(tree, "nama_task", descending=False)
+            elif column == "Z-A Nama Task":
+                tree_sort_by_column(tree, "nama_task", descending=True)
+
+
+        def delete_task():
+            selected_items = tree.selection()
+
+            if selected_items:
+                confirmation = messagebox.askyesno("Delete Task", "Apakah Anda yakin ingin menghapus task ini?")
+
+                if confirmation:
+                    for item in selected_items:
+                        values = tree.item(item, "values")
+                        nama_task = values[0]
+
+                        tree.delete(item)
+
+                        with open('tasks.csv', 'r') as file:
+                            reader = csv.DictReader(file)
+                            data = list(reader)
+
+                        for i, row in enumerate(data):
+                            if row['nama_task'] == nama_task:
+                                del data[i]
+                                break
+
+                        with open('tasks.csv', 'w', newline='') as file:
+                            fieldnames = ['nama_task', 'kategori', 'tanggal_dibuat', 'deadline', 'lokasi']
+                            writer = csv.DictWriter(file, fieldnames=fieldnames)
+                            writer.writeheader()
+                            writer.writerows(data)
+
+                    messagebox.showinfo("Delete Task", "Task berhasil dihapus.")
+            else:
+                messagebox.showwarning("Delete Task", "Mohon pilih task yang ingin dihapus.")
+
+        # self.image_read = Image.open("tampilkan task.png")
+        # self.image_read = ImageTk.PhotoImage(self.image_read)
+        # self.button_read = tk.Button(self, bd=0, highlightthickness=0, activebackground="#c5ac8e")
+        # self.button_read.config(image=self.image_read, width=390, height=120, bg="#c5ac8e", command=lambda: controller.show_frame(Read))
+        # self.button_read.place(x=120, y=200)
+
+        self.delete_button = tk.Button(self, text="Delete Task",bg="#9C6666" ,fg="white",width=15, height=2, command=delete_task)
+        self.delete_button.place(x=860, y=550)
+
+        self.button_back = Image.open("back_to_menu.png")
+        self.back_button = ImageTk.PhotoImage(self.button_back)
+        self.button = tk.Button(self, bd=0, highlightthickness=-1, activebackground="#EAE0D5")
+        self.button.config(image=self.back_button, width=270, height=35, bg="#EAE0D5", command=lambda: controller.show_frame(Homepage))
+        self.button.place(x=10,y=105)
+
+
+
+class Application(tk.Tk):
+    def __init__(self, *args, **kwargs):
+        tk.Tk.__init__(self, *args, **kwargs)
+
+        self.title("Login Takmir")
+        self.geometry("1280x720")
+        self.config(bg="#c5ac8e")
+        self.resizable(False, False)
+
+        window = tk.Frame(self)
+        window.pack()
+        window.grid_rowconfigure(0, minsize=720)
+        window.grid_columnconfigure(0, minsize=1280)
+
+        self.frames = {}
+        for F in (Homepage, Create, Read, Update, Delete):
+            frame = F(window, self)
+            self.frames[F] = frame
+            frame.grid(row=0, column=0, sticky="nsew")
+
+        self.show_frame(Homepage)
+
+    def show_frame(self, page):
+        frame = self.frames[page]
+        frame.tkraise()
+
+app = Application()
+app.mainloop()

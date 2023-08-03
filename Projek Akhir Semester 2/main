@@ -1,0 +1,1220 @@
+from tkinter import *
+from tkinter import messagebox as mbox
+from csv import *
+import csv
+from datetime import datetime
+from tkinter import ttk
+from tkinter import filedialog
+from tkinter import messagebox
+from tkinter.ttk import Combobox
+import tkinter as tk
+import openpyxl ,xlrd
+from openpyxl import Workbook
+import pathlib
+from tkinter import Tk, Label, PhotoImage
+from PIL import ImageTk, Image
+from datetime import datetime
+from plyer import notification
+import pygame.mixer
+import time
+
+root = Tk()
+root.title ('Task Reminder')
+root.geometry('1280x720')
+root.configure(bg="#c5ac8e")
+root.resizable (False,False)
+
+login_frame = Frame(root, width=1280, height=720, bg="black")
+homepage_frame = Frame(root, width=1280, height=720)
+create_frame = Frame(root, width=1280, height=720)
+read_frame = Frame(root, width=1280, height=720)
+update_frame = Frame(root, width=1280, height=720)
+delete_frame = Frame(root, width=1280, height=720, bg="black")
+
+login_frame.place(x=0, y=0)
+homepage_frame.place(x=0, y=0)
+create_frame.place(x=0, y=0)
+read_frame.place(x=0, y=0)
+update_frame.place(x=0, y=0)
+delete_frame.place(x=0, y=0)
+
+
+#---------------------------------LOGIN----------------------------------#
+img = PhotoImage(file="bg login dan register.png")
+Label (login_frame,image=img,bg ="#c5ac8e").place(x=0,y=0)
+
+
+def login():
+    file = open("datauser.csv", 'r')
+    csvfile = csv.reader(file)
+    username = user.get()
+    password = pasw.get()
+    check = 0
+
+    for i in csvfile:
+        if  ([f"{username}",f"{password}"]) == i:
+            check += 1
+            homepage_frame.tkraise()
+    if  check == 0:
+        mbox.showerror("Alert!", "Password atau Username Salah!")
+        
+#------------------------------------------------------------------------------------
+log_frame = Frame(login_frame, width=483, height=390, bg="#EAE0D5")
+log_frame.place(x=720, y=180)
+
+header = Label(login_frame, text="Login", fg="#E27070", bg="#EAE0D5", font=("Rowdies", 64, "bold"))
+header.place(x=850, y=80)
+
+def on_name(e):
+    user.delete(0, "end")
+
+def out_name(e):
+    fill = user.get()
+    if fill == "":
+        user.insert(0, "Username")
+
+def on_pass(e):
+    pasw.delete(0, "end")
+
+def out_pass(e):
+    fill = pasw.get()
+    if fill == "":
+        pasw.insert(0, "Password")
+def register():
+    root.withdraw()
+    register = Toplevel()
+    register.title("register")
+    register.geometry("1280x720")
+    register.config(bg="#c5ac8e")
+    register.resizable(False, False)
+
+    background = PhotoImage(file="bg login dan register.png")
+    Label(register,image=background, bg="#c5ac8e").place(x=0,y=0)
+#--------------------------------------------------------------------------
+
+    log_frame = Frame(register, width=483, height=450, bg='#EAE0D5')#"#c5ac8e")
+    log_frame.place(x=720, y=150)
+
+    header = Label(register, text="Register", fg="#E27070", bg="#EAE0D5", font=("Rowdies", 64, "bold"))
+    header.place(x=780, y=60)
+
+    def signup():
+        username = user.get()
+        password = pasw.get()
+        confirm_password = con_pasw.get()
+
+        if confirm_password == password:
+            file = open("datauser.csv", 'a', newline="")
+            data = [username,password]
+            csvfile = writer(file)
+            csvfile.writerow(data)
+            mbox.showinfo("Selamat", "Register Telah Berhasil")
+            file.close()
+            register.destroy()
+            root.deiconify()
+        else:
+            mbox.showerror("Peringatatan", "Password yang anda masukkan salah")
+
+    def on_name(e):
+        user.delete(0, "end")
+
+    def out_name(e):
+        fill = user.get()
+        if fill == "":
+            user.insert(0, "Username")
+
+    def on_pass(e):
+        pasw.delete(0, "end")
+
+    def out_pass(e):
+        fill = pasw.get()
+        if fill == "":
+            pasw.insert(0, "Password")
+
+    def on_confirm(e):
+        con_pasw.delete(0, "end")
+
+    def out_confirm(e):
+        fill = con_pasw.get()
+        if fill == "":
+            con_pasw.insert(0, "Confirm Password")
+
+    def back_login():
+        register.destroy()
+        root.deiconify()
+
+    
+    
+#===============================================================================================  
+
+    user = Entry(log_frame, width=25, fg="black", border=0, bg="#EAE0D5", font=("Roboto", 12))
+    user.place(x=60, y=100)
+    user.insert(0, "Username")
+    user.bind("<FocusIn>", on_name)
+    user.bind("<FocusOut>", out_name)
+    Frame(log_frame, width=345, height=3, bg='black').place(x=60, y=130)
+
+    pasw = Entry(log_frame, width=25, fg="black", border=0, bg="#EAE0D5", font=("Roboto", 12))
+    pasw.place (x=60,y=180)
+    pasw.insert(0, "Password")
+    pasw.bind("<FocusIn>", on_pass)
+    pasw.bind("<FocusOut>", out_pass)
+    Frame(log_frame, width=345, height=3, bg='black').place(x=60, y=210)
+
+    con_pasw =Entry(log_frame, width=25, fg="black", border=0, bg="#EAE0D5", font=("Roboto", 12))
+    con_pasw.place(x=60,y=260)
+    con_pasw.insert(0, "Confirm Password")
+    con_pasw.bind("<FocusIn>", on_confirm)
+    con_pasw.bind("<FocusOut>", out_confirm)
+    Frame(log_frame, width=345, height=3, bg='black').place(x=60, y=290)
+
+    Button(log_frame, width=33, pady=7, text="Register", font=("Rowdies", 14, "bold"), bg='white', fg='#E27070', command=signup, border=0).place(x=30, y=310)
+    noacc = Label(log_frame, text="Already have an account?", fg='black', bg='#EAE0D5', font=("Roboto", 15))
+    noacc.place(x=95, y=390)
+
+    Button(log_frame, text="Login", font=("Roboto", 16, "underline"),  bg="#EAE0D5", fg="#585FFF",command=back_login, cursor="hand2", border=0).place(x=327, y=383)
+
+    register.mainloop()
+
+        
+#===============================================================================================        
+        
+user = Entry(log_frame, width=25, fg="black", border=0, bg="#EAE0D5", font=("Roboto", 12))
+user.place(x=60, y=100)
+user.insert(0, "Username")
+user.bind("<FocusIn>", on_name)
+user.bind("<FocusOut>", out_name)
+Frame(log_frame, width=345, height=3, bg="black").place(x=60, y=130)
+
+pasw = Entry(log_frame, width=25, fg="black", border=0, bg="#EAE0D5", font=("Roboto", 12))
+pasw.place(x=60, y=180)
+pasw.insert(0, "Password")
+pasw.bind("<FocusIn>", on_pass)
+pasw.bind("<FocusOut>", out_pass)
+Frame(log_frame, width=345, height=3, bg="black").place(x=60, y=210)
+
+Button(log_frame, width=33, pady=7, text="Login", font=("Rowdies", 14, "bold"), bg="white", fg="#E27070", command=login, border=0).place(x=40, y=250)
+noacc = Label(log_frame, text="Don't have an account?", fg="black", bg="#EAE0D5", font=("Roboto", 15))
+noacc.place(x=100, y=330)
+Button(log_frame, text="Register", font=("Roboto", 16, "underline"), bg="#EAE0D5", fg="#585FFF",command=register, cursor="hand2", border=0).place(x=310, y=325)
+
+
+#-----------------------------HOMEPAGE--------------------------#
+def tampilkan_task():
+    read_frame.tkraise()
+
+def hapus_task():
+    delete_frame.tkraise()
+
+def tambah_task():
+    create_frame.tkraise()
+
+def edit_task():
+    update_frame.tkraise()
+
+gmbr = PhotoImage(file="bg homepage.png")
+Label (homepage_frame, image=gmbr,bg ="#c5ac8e").place(x=0,y=0)
+
+#------------------------------------------------------------------
+
+#button tampilan task
+button_tampilan_task = PhotoImage(file="tampilkan task.png")
+button = Button(homepage_frame, bd=0, highlightthickness=0, activebackground="#c5ac8e")
+button.config(image=button_tampilan_task, width=390, height=120, bg="#c5ac8e", command=tampilkan_task)
+button.place(x=120,y=200)
+
+#button hapus task
+button_hapus_task = PhotoImage(file="hapus task.png")
+button = Button(homepage_frame, bd=0, highlightthickness=0, activebackground="#c5ac8e")
+button.config(image=button_hapus_task, width=390, height=120, bg="#c5ac8e", command=hapus_task)
+button.place(x=120,y=400)
+
+#button tambah task
+button_tambah_task = PhotoImage(file="tambah task.png")
+button = Button(homepage_frame, bd=0, highlightthickness=-1, activebackground="#EAE0D5")
+button.config(image=button_tambah_task, width=390, height=120, bg="#EAE0D5", command=tambah_task)
+button.place(x=800,y=200) 
+
+#button edit task
+button_edit_task = PhotoImage(file="edit task.png")
+button = Button(homepage_frame, bd=0, highlightthickness=-1, activebackground="#EAE0D5")
+button.config(image=button_edit_task, width=390, height=120, bg="#EAE0D5", command=edit_task)
+button.place(x=800,y=400)
+
+
+#--------------------------------CREATE----------------------------------#
+img_create = PhotoImage(file="bg tambah task.png")
+Label (create_frame,image=img_create,bg ="#c5ac8e").place(x=0,y=0)
+
+def tambahkan():
+    nama_task = namaEntry.get()
+    kategori = kategori_combobox.get()
+    tanggal_dibuat = TglEntry.get()
+    deadline = deadlineEntry.get()
+    lokasi = Lokasi.get()
+
+    if not nama_task or not kategori or not tanggal_dibuat or not deadline or not lokasi:
+        messagebox.showerror("Error", "Harap lengkapi semua field")
+    else:
+        task = {
+            'nama_task': nama_task,
+            'kategori': kategori,
+            'tanggal_dibuat': tanggal_dibuat,
+            'deadline': deadline,
+            'lokasi': lokasi
+        }
+        with open('tasks.csv', 'a', newline='') as file:
+            fieldnames = ['nama_task', 'kategori', 'tanggal_dibuat', 'deadline', 'lokasi']
+            writer = csv.DictWriter(file, fieldnames=fieldnames)
+            if file.tell() == 0:
+                writer.writeheader()
+            writer.writerow(task)
+        messagebox.showinfo("Sukses", "Task berhasil ditambahkan")
+
+        namaEntry.delete(0, END)
+        kategori_combobox.set("")
+        TglEntry.delete(0, END)
+        TglEntry.insert(0, datetime.now().strftime("%Y-%m-%d"))
+        deadlineEntry.delete(0, END)
+        deadlineEntry.insert(0, datetime.now().strftime("%Y-%m-%d"))
+        Lokasi.delete(0, END)
+
+def reset():
+    namaEntry.delete(0, END)
+    kategori_combobox.set("")
+    TglEntry.delete(0, END)
+    TglEntry.insert(0, datetime.now().strftime("%Y-%m-%d"))
+    deadlineEntry.delete(0, END)
+    deadlineEntry.insert(0, datetime.now().strftime("%Y-%m-%d"))
+    Lokasi.delete(0, END)
+
+def kembali():
+    homepage_frame.tkraise()
+
+namaEntry = Entry(create_frame, width=45, bd=1, font=20)
+namaEntry.place(x=400, y=167)
+
+kategori_combobox = Combobox(create_frame, values=["Tugas Kuliah", "Event Ormawa", "Lomba", "Lainnya"], font="arial 11", state="r", width=14)
+kategori_combobox.place(x=400, y=247)
+kategori_combobox.current(0)
+
+TglEntry = Entry(create_frame, width=15, bd=1, font="arial 10")
+TglEntry.place(x=400, y=324)
+TglEntry.insert(0, datetime.now().strftime("%Y-%m-%d"))
+
+deadlineEntry = Entry(create_frame, width=15, bd=1, font="arial 10")
+deadlineEntry.place(x=400, y=404)
+deadlineEntry.insert(0, datetime.now().strftime("%Y-%m-%d"))
+
+Lokasi = Entry(create_frame, bd=1, font="arial 10")
+Lokasi.place(x=400, y=480)
+
+Button(create_frame, text="Tambahkan", bg="#9C6666", fg="white", width=15, height=2, command=tambahkan).place(x=940, y=600)
+Button(create_frame, text="Reset", bg="#9C6666", fg="white", width=15, height=2, command=reset).place(x=800, y=600)
+
+back_button = PhotoImage(file="back button.png")
+button = Button(create_frame, bd=0, highlightthickness=-1, activebackground="#EAE0D5")
+button.config(image=back_button, width=27, height=35, bg="#EAE0D5", command=kembali)
+button.place(x=30, y=105)
+
+
+#-------------------------------READ----------------------------------#
+ringtone_path = "C:\\Users\\ASUS\\Downloads\\takmir\\majumajumaju.mp3"
+pygame.mixer.init()
+ringtone = pygame.mixer.Sound(ringtone_path)
+
+
+img_read = PhotoImage(file="bg tampilkan task.png")
+Label(read_frame, image=img_read, bg="#c5ac8e").place(x=0, y=0)
+
+def play_ringtone():
+    ringtone.play()
+
+def show_notification(title, message):
+    notification.notify(
+        title=title,
+        message=message,
+        app_icon="C:\\Users\\ASUS\\Downloads\\takmir\\logo_takmir.ico",
+        timeout=3600,
+    )
+    time.sleep(2)
+    play_ringtone()
+
+
+
+def check_deadline(deadline):
+    deadline_date = datetime.strptime(deadline, '%Y-%m-%d').date()
+    current_date = datetime.now().date()
+    
+    if current_date == deadline_date:
+        return True
+    else:
+        return False
+
+table_frame = Frame(read_frame, width=1000, height=600, bg="black")
+table_frame.place(x=180, y=150)
+listbox_data = Listbox(table_frame, width=100)
+listbox_data.pack(fill=BOTH, expand=True)
+
+tree_scroll = Scrollbar(listbox_data)
+tree_scroll.pack(side=RIGHT, fill=Y)
+
+style = ttk.Style()
+style.configure("Treeview", font=("Arial", 15))
+style.configure("Treeview", rowheight=30)
+style.configure("Treeview.Heading", font=("Arial", 16))
+
+tree = ttk.Treeview(listbox_data, columns=("nama_task", "kategori", "tanggal_dibuat", "deadline", "lokasi"), show="headings")
+tree.heading("nama_task", text="Nama Task", command=lambda: sort_data(tree, "nama_task"))
+tree.heading("kategori", text="Kategori", command=lambda: sort_data(tree, "kategori"))
+tree.heading("tanggal_dibuat", text="Tanggal Dibuat", command=lambda: sort_data(tree, "tanggal_dibuat"))
+tree.heading("deadline", text="Deadline", command=lambda: sort_data(tree, "deadline"))
+tree.heading("lokasi", text="Lokasi", command=lambda: sort_data(tree, "lokasi"))
+
+tree.column("nama_task", width=210)
+tree.column("kategori", width=160)
+tree.column("tanggal_dibuat", width=180)
+tree.column("deadline", width=180)
+tree.column("lokasi", width=180)
+
+tree.configure(yscrollcommand=tree_scroll.set)
+tree_scroll.configure(command=tree.yview)
+
+with open('tasks.csv', 'r') as file:
+    reader = csv.DictReader(file)
+    data = list(reader)
+
+    for row in data:
+        tree.insert("", END, values=(row['nama_task'], row['kategori'], row['tanggal_dibuat'], row['deadline'], row['lokasi']))
+        if check_deadline(row['deadline']):
+            show_notification("Deadline Task", f"Task {row['nama_task']} sudah mencapai deadline")
+
+tree.pack(fill=BOTH, expand=True)
+
+search_frame = Frame(read_frame, width=500, height=500)
+search_frame.place(x=800, y=10)
+
+search_label = Label(search_frame, text="Search:")
+search_label.pack(side=LEFT)
+
+search_entry = Entry(search_frame, font=("Arial", 14), width=20)
+search_entry.pack(side=LEFT, padx=5, pady=5)
+
+
+search_button = Button(search_frame, text="Cari", command=lambda: search_data(tree, search_entry.get()))
+search_button.pack(side=LEFT)
+
+sort_frame = Frame(read_frame)
+sort_frame.place(x=800, y=50)
+
+sort_label = Label(sort_frame, text="Sort by:")
+sort_label.pack(side=LEFT)
+
+sort_combobox = ttk.Combobox(sort_frame, values=["Deadline Terdekat", "Deadline Terlama", "A-Z Nama Task", "Z-A Nama Task"], state="readonly", font=("Arial", 10))
+sort_combobox.pack(side=LEFT)
+sort_combobox.current(0)
+
+sort_button = Button(sort_frame, text="Sort", command=lambda: sort_data_callback(sort_combobox, tree))
+sort_button.pack(side=LEFT)
+
+
+
+
+
+
+def binary_search(data, keyword):
+    low = 0
+    high = len(data) - 1
+
+    while low <= high:
+        mid = (low + high) // 2
+        if data[mid]['nama_task'].lower() == keyword.lower():
+            return mid
+        elif data[mid]['nama_task'].lower() < keyword.lower():
+            low = mid + 1
+        else:
+            high = mid - 1
+
+    return -1
+
+
+def search_data(tree, keyword):
+    tree.delete(*tree.get_children())
+
+    if keyword:
+        sorted_data = sorted(data, key=lambda x: x['nama_task'].lower())  # Sorting data berdasarkan nama_task
+        index = binary_search(sorted_data, keyword)
+        if index != -1:
+            item = sorted_data[index]
+            tree.insert("", END, values=(item['nama_task'], item['kategori'], item['tanggal_dibuat'], item['deadline'], item['lokasi']))
+    else:
+        for item in data:
+            tree.insert("", END, values=(item['nama_task'], item['kategori'], item['tanggal_dibuat'], item['deadline'], item['lokasi']))
+
+
+
+
+def merge_sort(data, column, descending=False):
+    if len(data) <= 1:
+        return data
+
+    mid = len(data) // 2
+    left_half = data[:mid]
+    right_half = data[mid:]
+
+    left_half = merge_sort(left_half, column, descending)
+    right_half = merge_sort(right_half, column, descending)
+
+    return merge(left_half, right_half, column, descending)
+
+
+def merge(left, right, column, descending=False):
+    result = []
+    i = j = 0
+
+    while i < len(left) and j < len(right):
+        if (left[i][0].lower() < right[j][0].lower() and not descending) or (left[i][0].lower() > right[j][0].lower() and descending):
+            result.append(left[i])
+            i += 1
+        else:
+            result.append(right[j])
+            j += 1
+
+    while i < len(left):
+        result.append(left[i])
+        i += 1
+
+    while j < len(right):
+        result.append(right[j])
+        j += 1
+
+    return result
+
+
+
+def tree_sort_by_column(tree, column, descending=False):
+    data = [(tree.set(child, column), child) for child in tree.get_children("")]
+    sorted_data = merge_sort(data, column, descending)
+
+    for index, (value, child) in enumerate(sorted_data):
+        tree.move(child, "", index)
+
+
+
+def sort_data_callback(column_var, tree):
+    column = column_var.get()
+    if column == "Deadline Terdekat":
+        tree_sort_by_column(tree, "deadline", descending=False)
+    elif column == "Deadline Terlama":
+        tree_sort_by_column(tree, "deadline", descending=True)
+    elif column == "A-Z Nama Task":
+        tree_sort_by_column(tree, "nama_task", descending=False)
+    elif column == "Z-A Nama Task":
+        tree_sort_by_column(tree, "nama_task", descending=True)
+
+
+def create_task():
+    create_frame.tkraise()
+
+def back_to_menu():
+    homepage_frame.tkraise()
+
+def update_read_frame():
+    for child in read_frame.winfo_children():
+        child.destroy()
+
+    ringtone_path = "C:\\Users\\ASUS\\Downloads\\takmir\\majumajumaju.mp3"
+pygame.mixer.init()
+ringtone = pygame.mixer.Sound(ringtone_path)
+
+
+img_read = PhotoImage(file="bg tampilkan task.png")
+Label(read_frame, image=img_read, bg="#c5ac8e").place(x=0, y=0)
+
+def play_ringtone():
+    ringtone.play()
+
+def show_notification(title, message):
+    notification.notify(
+        title=title,
+        message=message,
+        app_icon="C:\\Users\\ASUS\\Downloads\\takmir\\logo_takmir.ico",
+        timeout=3600,
+    )
+    time.sleep(2)
+    play_ringtone()
+
+
+
+def check_deadline(deadline):
+    deadline_date = datetime.strptime(deadline, '%Y-%m-%d').date()
+    current_date = datetime.now().date()
+    
+    if current_date == deadline_date:
+        return True
+    else:
+        return False
+
+table_frame = Frame(read_frame, width=1000, height=600, bg="black")
+table_frame.place(x=180, y=150)
+listbox_data = Listbox(table_frame, width=100)
+listbox_data.pack(fill=BOTH, expand=True)
+
+tree_scroll = Scrollbar(listbox_data)
+tree_scroll.pack(side=RIGHT, fill=Y)
+
+style = ttk.Style()
+style.configure("Treeview", font=("Arial", 15))
+style.configure("Treeview", rowheight=30)
+style.configure("Treeview.Heading", font=("Arial", 16))
+
+tree = ttk.Treeview(listbox_data, columns=("nama_task", "kategori", "tanggal_dibuat", "deadline", "lokasi"), show="headings")
+tree.heading("nama_task", text="Nama Task", command=lambda: sort_data(tree, "nama_task"))
+tree.heading("kategori", text="Kategori", command=lambda: sort_data(tree, "kategori"))
+tree.heading("tanggal_dibuat", text="Tanggal Dibuat", command=lambda: sort_data(tree, "tanggal_dibuat"))
+tree.heading("deadline", text="Deadline", command=lambda: sort_data(tree, "deadline"))
+tree.heading("lokasi", text="Lokasi", command=lambda: sort_data(tree, "lokasi"))
+
+tree.column("nama_task", width=210)
+tree.column("kategori", width=160)
+tree.column("tanggal_dibuat", width=180)
+tree.column("deadline", width=180)
+tree.column("lokasi", width=180)
+
+tree.configure(yscrollcommand=tree_scroll.set)
+tree_scroll.configure(command=tree.yview)
+
+with open('tasks.csv', 'r') as file:
+    reader = csv.DictReader(file)
+    data = list(reader)
+
+    for row in data:
+        tree.insert("", END, values=(row['nama_task'], row['kategori'], row['tanggal_dibuat'], row['deadline'], row['lokasi']))
+        if check_deadline(row['deadline']):
+            show_notification("Deadline Task", f"Task {row['nama_task']} sudah mencapai deadline")
+
+tree.pack(fill=BOTH, expand=True)
+
+search_frame = Frame(read_frame, width=500, height=500)
+search_frame.place(x=800, y=10)
+
+search_label = Label(search_frame, text="Search:")
+search_label.pack(side=LEFT)
+
+search_entry = Entry(search_frame, font=("Arial", 14), width=20)
+search_entry.pack(side=LEFT, padx=5, pady=5)
+
+
+search_button = Button(search_frame, text="Cari", command=lambda: search_data(tree, search_entry.get()))
+search_button.pack(side=LEFT)
+
+sort_frame = Frame(read_frame)
+sort_frame.place(x=800, y=50)
+
+sort_label = Label(sort_frame, text="Sort by:")
+sort_label.pack(side=LEFT)
+
+sort_combobox = ttk.Combobox(sort_frame, values=["Deadline Terdekat", "Deadline Terlama", "A-Z Nama Task", "Z-A Nama Task"], state="readonly", font=("Arial", 10))
+sort_combobox.pack(side=LEFT)
+sort_combobox.current(0)
+
+sort_button = Button(sort_frame, text="Sort", command=lambda: sort_data_callback(sort_combobox, tree))
+sort_button.pack(side=LEFT)
+
+
+
+
+
+
+def binary_search(data, keyword):
+    low = 0
+    high = len(data) - 1
+
+    while low <= high:
+        mid = (low + high) // 2
+        if data[mid]['nama_task'].lower() == keyword.lower():
+            return mid
+        elif data[mid]['nama_task'].lower() < keyword.lower():
+            low = mid + 1
+        else:
+            high = mid - 1
+
+    return -1
+
+
+def search_data(tree, keyword):
+    tree.delete(*tree.get_children())
+
+    if keyword:
+        sorted_data = sorted(data, key=lambda x: x['nama_task'].lower())  # Sorting data berdasarkan nama_task
+        index = binary_search(sorted_data, keyword)
+        if index != -1:
+            item = sorted_data[index]
+            tree.insert("", END, values=(item['nama_task'], item['kategori'], item['tanggal_dibuat'], item['deadline'], item['lokasi']))
+    else:
+        for item in data:
+            tree.insert("", END, values=(item['nama_task'], item['kategori'], item['tanggal_dibuat'], item['deadline'], item['lokasi']))
+
+
+
+
+def merge_sort(data, column, descending=False):
+    if len(data) <= 1:
+        return data
+
+    mid = len(data) // 2
+    left_half = data[:mid]
+    right_half = data[mid:]
+
+    left_half = merge_sort(left_half, column, descending)
+    right_half = merge_sort(right_half, column, descending)
+
+    return merge(left_half, right_half, column, descending)
+
+
+def merge(left, right, column, descending=False):
+    result = []
+    i = j = 0
+
+    while i < len(left) and j < len(right):
+        if (left[i][0].lower() < right[j][0].lower() and not descending) or (left[i][0].lower() > right[j][0].lower() and descending):
+            result.append(left[i])
+            i += 1
+        else:
+            result.append(right[j])
+            j += 1
+
+    while i < len(left):
+        result.append(left[i])
+        i += 1
+
+    while j < len(right):
+        result.append(right[j])
+        j += 1
+
+    return result
+
+
+
+def tree_sort_by_column(tree, column, descending=False):
+    data = [(tree.set(child, column), child) for child in tree.get_children("")]
+    sorted_data = merge_sort(data, column, descending)
+
+    for index, (value, child) in enumerate(sorted_data):
+        tree.move(child, "", index)
+
+
+
+def sort_data_callback(column_var, tree):
+    column = column_var.get()
+    if column == "Deadline Terdekat":
+        tree_sort_by_column(tree, "deadline", descending=False)
+    elif column == "Deadline Terlama":
+        tree_sort_by_column(tree, "deadline", descending=True)
+    elif column == "A-Z Nama Task":
+        tree_sort_by_column(tree, "nama_task", descending=False)
+    elif column == "Z-A Nama Task":
+        tree_sort_by_column(tree, "nama_task", descending=True)
+
+
+def create_task():
+    create_frame.tkraise()
+
+def back_to_menu():
+    homepage_frame.tkraise()
+
+def update_read_frame():
+    pass
+
+
+button_create_task = PhotoImage(file="create_pada_tampilkan_task.png")
+button = Button(read_frame, bd=0, highlightthickness=0, activebackground="#EAE0D5")
+button.config(image=button_create_task, width=360, height=120, bg="#EAE0D5", command=create_task)
+button.place(x=990, y=500)
+
+back_button = PhotoImage(file="back_to_menu.png")
+button = Button(read_frame, bd=0, highlightthickness=-1, activebackground="#EAE0D5")
+button.config(image=back_button, width=270, height=35, bg="#EAE0D5", command=back_to_menu)
+button.place(x=10,y=105)
+
+##########################################
+button_create_task = PhotoImage(file="create_pada_tampilkan_task.png")
+button = Button(read_frame, bd=0, highlightthickness=0, activebackground="#EAE0D5")
+button.config(image=button_create_task, width=360, height=120, bg="#EAE0D5", command=create_task)
+button.place(x=990, y=500)
+
+back_button = PhotoImage(file="back_to_menu.png")
+button = Button(read_frame, bd=0, highlightthickness=-1, activebackground="#EAE0D5")
+button.config(image=back_button, width=270, height=35, bg="#EAE0D5", command=back_to_menu)
+button.place(x=10,y=105)
+
+
+
+#------------------------------UPDATE----------------------------------#
+img_update = PhotoImage(file="bg tampilkan task.png")
+Label (update_frame,image=img_update,bg ="#c5ac8e").place(x=0,y=0)
+
+table_frame = Frame(update_frame, width=1000, height=600, bg="black")
+table_frame.place(x=180,y=150)
+listbox_data = Listbox(table_frame, width=100)
+listbox_data.pack(fill=BOTH, expand=True)
+
+tree_scroll = Scrollbar(listbox_data)
+tree_scroll.pack(side=RIGHT, fill=Y)
+
+style = ttk.Style()
+style.configure("Treeview", font=("Arial", 15))
+style.configure("Treeview", rowheight=30)
+style.configure("Treeview.Heading", font=("Arial", 16))
+
+tree = ttk.Treeview(listbox_data, columns=("nama_task", "kategori", "tanggal_dibuat", "deadline", "lokasi"), show="headings")
+tree.heading("nama_task", text="Nama Task", command=lambda: sort_data(tree, "nama_task"))
+tree.heading("kategori", text="Kategori", command=lambda: sort_data(tree, "kategori"))
+tree.heading("tanggal_dibuat", text="Tanggal Dibuat", command=lambda: sort_data(tree, "tanggal_dibuat"))
+tree.heading("deadline", text="Deadline", command=lambda: sort_data(tree, "deadline"))
+tree.heading("lokasi", text="Lokasi", command=lambda: sort_data(tree, "lokasi"))
+
+tree.column("nama_task", width=210)
+tree.column("kategori", width=160)
+tree.column("tanggal_dibuat", width=180)
+tree.column("deadline", width=180)
+tree.column("lokasi", width=180)
+
+tree.configure(yscrollcommand=tree_scroll.set)
+tree_scroll.configure(command=tree.yview)
+
+with open('tasks.csv', 'r') as file:
+    reader = csv.DictReader(file)
+    data = list(reader)
+
+    for row in data:
+        tree.insert("", END, values=(row['nama_task'], row['kategori'], row['tanggal_dibuat'], row['deadline'], row['lokasi']))
+
+tree.pack(fill=BOTH, expand=True)
+
+search_frame = Frame(update_frame, width=500, height=500)
+search_frame.place(x=800,y=10)
+
+search_label = Label(search_frame, text="Search:")
+search_label.pack(side=LEFT)
+
+search_entry = Entry(search_frame, font=("Arial", 14), width=20)
+search_entry.pack(side=LEFT, padx=5, pady=5)
+
+
+search_button = Button(search_frame, text="Cari", command=lambda: search_data(tree, search_entry.get()))
+search_button.pack(side=LEFT)
+
+sort_frame = Frame(update_frame)
+sort_frame.place(x=800,y=50)
+
+sort_label = Label(sort_frame, text="Sort by:")
+sort_label.pack(side=LEFT)
+
+sort_combobox = ttk.Combobox(sort_frame, values=["Deadline Terdekat", "Deadline Terlama", "A-Z Nama Task", "Z-A Nama Task"], state="readonly", font=("Arial", 10))
+sort_combobox.pack(side=LEFT)
+sort_combobox.current(0)
+
+sort_button = Button(sort_frame, text="Sort", command=lambda: sort_data_callback(sort_combobox, tree))
+sort_button.pack(side=LEFT)
+
+
+def binary_search(data, keyword):
+    low = 0
+    high = len(data) - 1
+
+    while low <= high:
+        mid = (low + high) // 2
+        if data[mid]['nama_task'].lower() == keyword.lower():
+            return mid
+        elif data[mid]['nama_task'].lower() < keyword.lower():
+            low = mid + 1
+        else:
+            high = mid - 1
+
+    return -1
+
+
+def search_data(tree, keyword):
+    tree.delete(*tree.get_children())
+
+    if keyword:
+        sorted_data = sorted(data, key=lambda x: x['nama_task'].lower())  
+        index = binary_search(sorted_data, keyword)
+        if index != -1:
+            item = sorted_data[index]
+            tree.insert("", END, values=(item['nama_task'], item['kategori'], item['tanggal_dibuat'], item['deadline'], item['lokasi']))
+    else:
+        for item in data:
+            tree.insert("", END, values=(item['nama_task'], item['kategori'], item['tanggal_dibuat'], item['deadline'], item['lokasi']))
+
+
+
+
+def merge_sort(data, column, descending=False):
+    if len(data) <= 1:
+        return data
+
+    mid = len(data) // 2
+    left_half = data[:mid]
+    right_half = data[mid:]
+
+    left_half = merge_sort(left_half, column, descending)
+    right_half = merge_sort(right_half, column, descending)
+
+    return merge(left_half, right_half, column, descending)
+
+
+def merge(left, right, column, descending=False):
+    result = []
+    i = j = 0
+
+    while i < len(left) and j < len(right):
+        if (left[i][0].lower() < right[j][0].lower() and not descending) or (left[i][0].lower() > right[j][0].lower() and descending):
+            result.append(left[i])
+            i += 1
+        else:
+            result.append(right[j])
+            j += 1
+
+    while i < len(left):
+        result.append(left[i])
+        i += 1
+
+    while j < len(right):
+        result.append(right[j])
+        j += 1
+
+    return result
+
+
+def tree_sort_by_column(tree, column, descending=False):
+    data = [(tree.set(child, column), child) for child in tree.get_children("")]
+    sorted_data = merge_sort(data, column, descending)
+
+    for index, (value, child) in enumerate(sorted_data):
+        tree.move(child, "", index)
+
+
+
+def sort_data_callback(column_var, tree):
+    column = column_var.get()
+    if column == "Deadline Terdekat":
+        tree_sort_by_column(tree, "deadline", descending=False)
+    elif column == "Deadline Terlama":
+        tree_sort_by_column(tree, "deadline", descending=True)
+    elif column == "A-Z Nama Task":
+        tree_sort_by_column(tree, "nama_task", descending=False)
+    elif column == "Z-A Nama Task":
+        tree_sort_by_column(tree, "nama_task", descending=True)
+
+
+# ...
+fieldnames = ['nama_task', 'kategori', 'tanggal_dibuat', 'deadline', 'lokasi']
+
+# def write_to_csv(data):
+#     with open('tasks.csv', 'w', newline='') as file:
+#         writer = csv.DictWriter(file, fieldnames=fieldnames)
+#         writer.writeheader()
+#         writer.writerows(data)
+
+
+def edit_task():
+    selected_item = tree.selection()
+
+    if selected_item:
+        values = tree.item(selected_item)["values"]
+
+        edit_dialog = Toplevel(root)
+        edit_dialog.title("Edit Task")
+        edit_dialog.geometry("1280x720")
+        edit_dialog.resizable(False, False)
+        edit_dialog.configure(bg="white")
+
+        background_image = ImageTk.PhotoImage(Image.open("bg tambah task.png"))
+        background_label = Label(edit_dialog, image=background_image)
+        background_label.place(x=0, y=0, relwidth=1, relheight=1)
+
+        
+        nama_entry = Entry(edit_dialog, width=45, bd=1, font=("Arial", 12))
+        nama_entry.place(x=400, y=167)
+        nama_entry.insert(0, values[0])
+
+        kategori_entry = Combobox(edit_dialog, values=["Tugas Kuliah", "Event Ormawa", "Lomba", "Lainnya"], font=("Arial", 12), state="readonly", width=14)
+        kategori_entry.place(x=400, y=247)
+        kategori_entry.insert(0, values[1])
+
+        tgl_dibuat_entry = Entry(edit_dialog, width=15, bd=1, font=("Arial", 12))
+        tgl_dibuat_entry.place(x=400, y=324)
+        tgl_dibuat_entry.insert(0, values[2])
+
+        deadline_entry = Entry(edit_dialog, width=15, bd=1, font=("Arial", 12))
+        deadline_entry.place(x=400, y=404)
+        deadline_entry.insert(0, values[3])
+
+        lokasi_entry = Entry(edit_dialog, bd=1, font=("Arial", 12))
+        lokasi_entry.place(x=400, y=480)
+        lokasi_entry.insert(0, values[4])
+
+        def simpan():
+            nama_baru = nama_entry.get()
+            kategori_baru = kategori_entry.get()
+            tgl_dibuat_baru = tgl_dibuat_entry.get()
+            deadline_baru = deadline_entry.get()
+            lokasi_baru = lokasi_entry.get()
+
+            tree.item(selected_item, values=(nama_baru, kategori_baru, tgl_dibuat_baru, deadline_baru, lokasi_baru))
+
+            for item in data:
+                if item['nama_task'] == values[0]:
+                    item['nama_task'] = nama_baru
+                    item['kategori'] = kategori_baru
+                    item['tanggal_dibuat'] = tgl_dibuat_baru
+                    item['deadline'] = deadline_baru
+                    item['lokasi'] = lokasi_baru
+
+            with open('tasks.csv', 'w', newline='') as file:
+                fieldnames = ['nama_task', 'kategori', 'tanggal_dibuat', 'deadline', 'lokasi']
+                writer = csv.DictWriter(file, fieldnames=fieldnames)
+                writer.writeheader()
+                writer.writerows(data)
+
+            messagebox.showinfo("Edit Task", "Perubahan berhasil disimpan.")
+            edit_dialog.destroy()
+
+
+        save_button = Button(edit_dialog, text="Simpan", font=("Arial", 12), bg="#9C6666" ,fg="white",width=15, height=2,command=simpan)
+        save_button.place(x=1040, y=600)
+       
+        edit_dialog.mainloop()
+
+    else:
+        messagebox.showwarning("Edit Task", "Mohon pilih task yang ingin diedit.")
+
+
+def back_to_menu():
+    homepage_frame.tkraise()
+
+
+
+edit_button = Button(update_frame, text="Edit Task",bg="#9C6666" ,fg="white",width=15, height=2, command=edit_task)
+edit_button.place(x=860, y=550)
+
+back_button_update = PhotoImage(file="back_to_menu.png")
+button = Button(update_frame, bd=0, highlightthickness=-1, activebackground="#EAE0D5")
+button.config(image=back_button_update, width=270, height=35, bg="#EAE0D5", command=back_to_menu)
+button.place(x=10,y=105)
+
+
+#---------------------------------DELETE-------------------------------#
+img_delete = PhotoImage(file="bg tampilkan task.png")
+Label (delete_frame,image=img_delete,bg ="#c5ac8e").place(x=0,y=0)
+
+table_frame = Frame(delete_frame, width=1000, height=600, bg="black")
+table_frame.place(x=180,y=150)
+listbox_data = Listbox(table_frame, width=100)
+listbox_data.pack(fill=BOTH, expand=True)
+
+tree_scroll = Scrollbar(listbox_data)
+tree_scroll.pack(side=RIGHT, fill=Y)
+
+style = ttk.Style()
+style.configure("Treeview", font=("Arial", 15))
+style.configure("Treeview", rowheight=30)
+style.configure("Treeview.Heading", font=("Arial", 16))
+
+tree = ttk.Treeview(listbox_data, columns=("nama_task", "kategori", "tanggal_dibuat", "deadline", "lokasi"), show="headings")
+tree.heading("nama_task", text="Nama Task", command=lambda: sort_data(tree, "nama_task"))
+tree.heading("kategori", text="Kategori", command=lambda: sort_data(tree, "kategori"))
+tree.heading("tanggal_dibuat", text="Tanggal Dibuat", command=lambda: sort_data(tree, "tanggal_dibuat"))
+tree.heading("deadline", text="Deadline", command=lambda: sort_data(tree, "deadline"))
+tree.heading("lokasi", text="Lokasi", command=lambda: sort_data(tree, "lokasi"))
+
+tree.column("nama_task", width=210)
+tree.column("kategori", width=160)
+tree.column("tanggal_dibuat", width=180)
+tree.column("deadline", width=180)
+tree.column("lokasi", width=180)
+
+tree.configure(yscrollcommand=tree_scroll.set)
+tree_scroll.configure(command=tree.yview)
+
+
+with open('tasks.csv', 'r') as file:
+    reader = csv.DictReader(file)
+    data = list(reader)
+
+    for row in data:
+        tree.insert("", END, values=(row['nama_task'], row['kategori'], row['tanggal_dibuat'], row['deadline'], row['lokasi']))
+
+tree.pack(fill=BOTH, expand=True)
+
+search_frame = Frame(delete_frame, width=500, height=500)
+search_frame.place(x=800,y=10)
+
+search_label = Label(search_frame, text="Search:")
+search_label.pack(side=LEFT)
+
+search_entry = Entry(search_frame, font=("Arial", 14), width=20)
+search_entry.pack(side=LEFT, padx=5, pady=5)
+
+
+search_button = Button(search_frame, text="Cari", command=lambda: search_data(tree, search_entry.get()))
+search_button.pack(side=LEFT)
+
+sort_frame = Frame(delete_frame)
+sort_frame.place(x=800,y=50)
+
+sort_label = Label(sort_frame, text="Sort by:")
+sort_label.pack(side=LEFT)
+
+sort_combobox = ttk.Combobox(sort_frame, values=["Deadline Terdekat", "Deadline Terlama", "A-Z Nama Task", "Z-A Nama Task"], state="readonly", font=("Arial", 10))
+sort_combobox.pack(side=LEFT)
+sort_combobox.current(0)
+
+sort_button = Button(sort_frame, text="Sort", command=lambda: sort_data_callback(sort_combobox, tree))
+sort_button.pack(side=LEFT)
+
+
+def binary_search(data, keyword):
+    low = 0
+    high = len(data) - 1
+
+    while low <= high:
+        mid = (low + high) // 2
+        if data[mid]['nama_task'].lower() == keyword.lower():
+            return mid
+        elif data[mid]['nama_task'].lower() < keyword.lower():
+            low = mid + 1
+        else:
+            high = mid - 1
+
+    return -1
+
+
+def search_data(tree, keyword):
+    tree.delete(*tree.get_children())
+
+    if keyword:
+        sorted_data = sorted(data, key=lambda x: x['nama_task'].lower())  # Sorting data berdasarkan nama_task
+        index = binary_search(sorted_data, keyword)
+        if index != -1:
+            item = sorted_data[index]
+            tree.insert("", END, values=(item['nama_task'], item['kategori'], item['tanggal_dibuat'], item['deadline'], item['lokasi']))
+    else:
+        for item in data:
+            tree.insert("", END, values=(item['nama_task'], item['kategori'], item['tanggal_dibuat'], item['deadline'], item['lokasi']))
+
+
+
+
+def merge_sort(data, column, descending=False):
+    if len(data) <= 1:
+        return data
+
+    mid = len(data) // 2
+    left_half = data[:mid]
+    right_half = data[mid:]
+
+    left_half = merge_sort(left_half, column, descending)
+    right_half = merge_sort(right_half, column, descending)
+
+    return merge(left_half, right_half, column, descending)
+
+
+def merge(left, right, column, descending=False):
+    result = []
+    i = j = 0
+
+    while i < len(left) and j < len(right):
+        if (left[i][0].lower() < right[j][0].lower() and not descending) or (left[i][0].lower() > right[j][0].lower() and descending):
+            result.append(left[i])
+            i += 1
+        else:
+            result.append(right[j])
+            j += 1
+
+    while i < len(left):
+        result.append(left[i])
+        i += 1
+
+    while j < len(right):
+        result.append(right[j])
+        j += 1
+
+    return result
+
+
+def tree_sort_by_column(tree, column, descending=False):
+    data = [(tree.set(child, column), child) for child in tree.get_children("")]
+    sorted_data = merge_sort(data, column, descending)
+
+    for index, (value, child) in enumerate(sorted_data):
+        tree.move(child, "", index)
+
+
+
+def sort_data_callback(column_var, tree):
+    column = column_var.get()
+    if column == "Deadline Terdekat":
+        tree_sort_by_column(tree, "deadline", descending=False)
+    elif column == "Deadline Terlama":
+        tree_sort_by_column(tree, "deadline", descending=True)
+    elif column == "A-Z Nama Task":
+        tree_sort_by_column(tree, "nama_task", descending=False)
+    elif column == "Z-A Nama Task":
+        tree_sort_by_column(tree, "nama_task", descending=True)
+
+
+def delete_task():
+    selected_items = tree.selection()
+
+    if selected_items:
+        confirmation = messagebox.askyesno("Delete Task", "Apakah Anda yakin ingin menghapus task ini?")
+
+        if confirmation:
+            for item in selected_items:
+                values = tree.item(item, "values")
+                nama_task = values[0]
+
+                tree.delete(item)
+
+                with open('tasks.csv', 'r') as file:
+                    reader = csv.DictReader(file)
+                    data = list(reader)
+
+                for i, row in enumerate(data):
+                    if row['nama_task'] == nama_task:
+                        del data[i]
+                        break
+
+                with open('tasks.csv', 'w', newline='') as file:
+                    fieldnames = ['nama_task', 'kategori', 'tanggal_dibuat', 'deadline', 'lokasi']
+                    writer = csv.DictWriter(file, fieldnames=fieldnames)
+                    writer.writeheader()
+                    writer.writerows(data)
+
+            messagebox.showinfo("Delete Task", "Task berhasil dihapus.")
+            update_read_frame()
+
+    else:
+        messagebox.showwarning("Delete Task", "Mohon pilih task yang ingin dihapus.")
+
+
+def back_to_menu():
+    homepage_frame.tkraise()
+
+
+
+delete_button = Button(delete_frame, text="Delete Task",bg="#9C6666" ,fg="white",width=15, height=2, command=delete_task)
+delete_button.place(x=860, y=550)
+
+
+back_delete = PhotoImage(file="back_to_menu.png")
+button_del = Button(delete_frame, bd=0, highlightthickness=-1, activebackground="#EAE0D5")
+button_del.config(image=back_delete, width=270, height=35, bg="#EAE0D5", command=back_to_menu)
+button_del.place(x=10,y=105)
+
+
+homepage_frame.tkraise()
+root.mainloop()
